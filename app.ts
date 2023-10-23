@@ -22,7 +22,14 @@ async function run() {
 		/* <------------------------------------------- Collections  -----------------------------------------> */
 		const folderCollection = client.db("Global_server").collection("Folders");
 
-		/* <------------------------------------------- Projects  -----------------------------------------> */
+		/* <------------------------------------------- Get Folder -----------------------------------------> */
+
+		app.get("/cars", async (req: Request, res: Response) => {
+			const query = {};
+			const result = folderCollection.find(query);
+			const projects = await result.toArray();
+			res.status(200).send(projects);
+		});
 
 		// Get Folder Collection
 
