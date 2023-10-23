@@ -24,11 +24,11 @@ async function run() {
 
 		/* <------------------------------------------- Get Folder -----------------------------------------> */
 
-		app.get("/cars", async (req: Request, res: Response) => {
+		app.get("/folders", async (req: Request, res: Response) => {
 			const query = {};
-			const result = folderCollection.find(query);
-			const projects = await result.toArray();
-			res.status(200).send(projects);
+			const cursor = folderCollection.find(query);
+			const result = await cursor.toArray();
+			res.status(200).send(result);
 		});
 
 		// Get Folder Collection
