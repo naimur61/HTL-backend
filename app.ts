@@ -49,8 +49,6 @@ async function run() {
 						findNodeById(e.children);
 					} else if (e.id == targetId) {
 						res.status(200).send(e);
-						console.log(e);
-						return;
 					}
 				}
 			}
