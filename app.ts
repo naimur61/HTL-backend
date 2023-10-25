@@ -29,6 +29,7 @@ async function run() {
 		const folderCollection = client.db("Global_server").collection("Folders");
 
 		/* <------------------------------------------- Get Folder -----------------------------------------> */
+
 		// Get all folders
 		app.get("/folders", async (req: Request, res: Response) => {
 			const query = {};
