@@ -11,10 +11,16 @@ require("dotenv").config();
 app.use(cors());
 app.use(express.json());
 
+// Interface for type
 interface TreeNode {
 	id: string;
 	label: string;
 	children?: TreeNode[];
+}
+
+// function for generated Id
+function generateUniqueId(): string {
+	return new ObjectId().toHexString();
 }
 
 const uri = `mongodb+srv://${process.env.DB_User}:${process.env.DB_Password}@cluster0.guif9pr.mongodb.net/your-database-name?retryWrites=true&w=majority`;
@@ -38,18 +44,34 @@ async function run() {
 			res.status(200).send(result);
 		});
 
-		// Catch folder by Id
-		app.get("/folders/:id", async (req: Request, res: Response) => {
-			const targetId = req.params.id;
-			const query = await folderCollection.find().toArray();
-			const cursor = findNodeById(query);
+		// Create folder by Id
+		app.post("/folders/:_id", async (req: Request, res: Response) => {
+			const targetId = req.params._id;
 
-			function findNodeById(query: TreeNode[]): boolean | any {
+			const label = req.body.label;
+			const childNode = {
+				id: generateUniqueId(),
+				label,
+				children: [],
+			};
+			console.log("gt", childNode);
+			const query = await folderCollection.find().toArray();
+			const oldData = query;
+			const filter = findNodeById(query);
+
+			async function findNodeById(query: TreeNode[]): Promise<boolean | any> {
+				console.log(query);
 				for (const e of query) {
 					if (e.children && e.children.length > 0 && e.id != targetId) {
 						findNodeById(e.children);
 					} else if (e.id == targetId) {
-						res.status(200).send(e);
+						const cursor = await e.children?.push(childNode);
+						console.log("cr", cursor);
+						const drop = await folderCollection.deleteOne({ label: "Root" });
+						console.log(oldData);
+						const result = await folderCollection.insertMany(oldData);
+						console.log("result", result);
+						res.status(200).send(result);
 					}
 				}
 			}
