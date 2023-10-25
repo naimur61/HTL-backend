@@ -29,7 +29,7 @@ async function run() {
 		const folderCollection = client.db("Global_server").collection("Folders");
 
 		/* <------------------------------------------- Get Folder -----------------------------------------> */
-
+		// Get all folders
 		app.get("/folders", async (req: Request, res: Response) => {
 			const query = {};
 			const cursor = folderCollection.find(query);
@@ -37,48 +37,24 @@ async function run() {
 			res.status(200).send(result);
 		});
 
-		// app.get("/folders/:id", async (req: Request, res: Response) => {
-		// 	const targetId = req.params.id;
-		// 	const query = await folderCollection.find().toArray();
-		// 	const cursor = findNodeById(query);
-		// 	console.log(cursor);
+		// Catch folder by Id
+		app.get("/folders/:id", async (req: Request, res: Response) => {
+			const targetId = req.params.id;
+			const query = await folderCollection.find().toArray();
+			const cursor = findNodeById(query);
 
-		// 	function findNodeById(query: TreeNode[]):boolean {
-		// 		query.map((e: TreeNode) => {
-		// 			if (e.id != targetId && e.children?.length !== 0) {
-		// 				findNodeById(e.children);
-		// 			} else {
-		// 				return true;
-		// 			}
-		// 		});
-		// 	}
-		// });
-
-		// Get Folder Collection
-
-		// app.get("/folders/:id", async (req: Request, res: Response) => {
-		// 	const targetId = req.params.id;
-		// 	const query = await folderCollection.find().toArray();
-		// 	const result = findNodeById(query);
-
-		// 	console.log(result); // Log the result
-
-		// 	function findNodeById(query: TreeNode[]): boolean {
-		// 		for (const node of query) {
-		// 			if (node.id !== targetId) {
-		// 				return true;
-		// 			}
-
-		// 			if (node.children && node.children.length > 0) {
-		// 				if (findNodeById(node.children)) {
-		// 					return true;
-		// 				}
-		// 			}
-		// 		}
-
-		// 		return false; // Node not found in this branch
-		// 	}
-		// });
+			function findNodeById(query: TreeNode[]): boolean | any {
+				for (const e of query) {
+					if (e.children && e.children.length > 0 && e.id != targetId) {
+						findNodeById(e.children);
+					} else if (e.id == targetId) {
+						res.status(200).send(e);
+						console.log(e);
+						return;
+					}
+				}
+			}
+		});
 
 		/* <-------------------------------------------  X  -----------------------------------------> */
 		app.get("/", (req: Request, res: Response) => {
