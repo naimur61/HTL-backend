@@ -96,53 +96,53 @@ async function run() {
 		// 	}
 		// });
 
-		app.delete("/delete/:id", async (req: Request, res: Response) => {
-			const targetId = req.params.id;
+		// app.delete("/delete/:id", async (req: Request, res: Response) => {
+		// 	const targetId = req.params.id;
 
-			const documentId = "65391202a13e02069487227e";
+		// 	const documentId = req.body.id;
 
-			const pipeline = [
-				{
-					$match: { id: documentId },
-				},
-				{
-					$project: {
-						tree: {
-							$reduce: {
-								input: "$tree",
-								initialValue: [],
-								in: {
-									$concatArrays: [
-										"$$value",
-										{
-											$cond: {
-												if: { $eq: ["$$this.id", targetId] },
-												then: [],
-												else: ["$$this"],
-											},
-										},
-									],
-								},
-							},
-						},
-					},
-				},
-			];
+		// 	const pipeline = [
+		// 		{
+		// 			$match: { id: documentId },
+		// 		},
+		// 		{
+		// 			$project: {
+		// 				tree: {
+		// 					$reduce: {
+		// 						input: "$tree",
+		// 						initialValue: [],
+		// 						in: {
+		// 							$concatArrays: [
+		// 								"$$value",
+		// 								{
+		// 									$cond: {
+		// 										if: { $eq: ["$$this.id", targetId] },
+		// 										then: [],
+		// 										else: ["$$this"],
+		// 									},
+		// 								},
+		// 							],
+		// 						},
+		// 					},
+		// 				},
+		// 			},
+		// 		},
+		// 	];
 
-			const updatedTree = await folderCollection.aggregate(pipeline).toArray();
+		// 	const updatedTree = await folderCollection.aggregate(pipeline).toArray();
 
-			if (updatedTree.length > 0) {
-				const updatedDocument = updatedTree[0];
-				await folderCollection.replaceOne({ _id: new ObjectId(documentId) }, updatedDocument);
-				res.status(200).json({ message: "Object deleted successfully" });
-			} else {
-				res.status(404).json({ message: "Object not found" });
-			}
-		});
+		// 	if (updatedTree.length > 0) {
+		// 		const updatedDocument = updatedTree[0];
+		// 		await folderCollection.replaceOne({ id: documentId }, updatedDocument);
+		// 		res.status(200).json({ message: "Object deleted successfully" });
+		// 	} else {
+		// 		res.status(404).json({ message: "Object not found" });
+		// 	}
+		// });
 
 		/* <-------------------------------------------  X  -----------------------------------------> */
 		app.get("/", (req: Request, res: Response) => {
-			res.send("Global Server");
+			res.send("Headless Technologies Limited Server");
 		});
 	} finally {
 	}
