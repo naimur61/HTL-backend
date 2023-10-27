@@ -45,8 +45,8 @@ async function run() {
 		});
 
 		// Create folder by Id
-		app.post("/folders/:_id", async (req: Request, res: Response) => {
-			const targetId = req.params._id;
+		app.post("/folders/:id", async (req: Request, res: Response) => {
+			const targetId = req.params.id;
 
 			const label = req.body.label;
 			const childNode = {
@@ -54,26 +54,89 @@ async function run() {
 				label,
 				children: [],
 			};
-			console.log("gt", childNode);
 			const query = await folderCollection.find().toArray();
 			const oldData = query;
 			const filter = findNodeById(query);
 
 			async function findNodeById(query: TreeNode[]): Promise<boolean | any> {
-				console.log(query);
 				for (const e of query) {
 					if (e.children && e.children.length > 0 && e.id != targetId) {
 						findNodeById(e.children);
 					} else if (e.id == targetId) {
 						const cursor = await e.children?.push(childNode);
-						console.log("cr", cursor);
 						const drop = await folderCollection.deleteOne({ label: "Root" });
-						console.log(oldData);
 						const result = await folderCollection.insertMany(oldData);
-						console.log("result", result);
 						res.status(200).send(result);
 					}
 				}
+			}
+		});
+
+		// Delete Folder
+
+		// app.delete("/delete/:id", async (req: Request, res: Response) => {
+		// 	const targetId = req.params.id;
+		// 	// console.log(targetId);
+		// 	const query = await folderCollection.find().toArray();
+		// 	const oldData = query;
+		// 	findNodeById(query);
+
+		// 	async function findNodeById(query: TreeNode[]): Promise<boolean | any> {
+		// 		for (const e of query) {
+		// 			if (e.children && e.children.length > 0 && e.id != targetId) {
+		// 				findNodeById(e.children);
+		// 			} else if (e.id == targetId) {
+		// 				// const newData = query.filter((item) => item.id !== targetId);
+		// 				query.updata( { $unset: { "e.id": 1 } } )
+
+		// 				// console.log(oldData.children);
+		// 				res.status(200).send(oldData);
+		// 			}
+		// 		}
+		// 	}
+		// });
+
+		app.delete("/delete/:id", async (req: Request, res: Response) => {
+			const targetId = req.params.id;
+
+			const documentId = "65391202a13e02069487227e";
+
+			const pipeline = [
+				{
+					$match: { id: documentId },
+				},
+				{
+					$project: {
+						tree: {
+							$reduce: {
+								input: "$tree",
+								initialValue: [],
+								in: {
+									$concatArrays: [
+										"$$value",
+										{
+											$cond: {
+												if: { $eq: ["$$this.id", targetId] },
+												then: [],
+												else: ["$$this"],
+											},
+										},
+									],
+								},
+							},
+						},
+					},
+				},
+			];
+
+			const updatedTree = await folderCollection.aggregate(pipeline).toArray();
+
+			if (updatedTree.length > 0) {
+				const updatedDocument = updatedTree[0];
+				await folderCollection.replaceOne({ _id: new ObjectId(documentId) }, updatedDocument);
+				res.status(200).json({ message: "Object deleted successfully" });
+			} else {
+				res.status(404).json({ message: "Object not found" });
 			}
 		});
 
