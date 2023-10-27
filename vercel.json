@@ -1,24 +1,15 @@
 {
-	"name": "my-vercel-project",
-	"alias": "my-vercel-project",
+	"version": 2,
 	"builds": [
 		{
-			"src": "frontend",
-			"use": "@vercel/static-build"
-		},
-		{
-			"src": "api/*",
+			"src": "./app.ts",
 			"use": "@vercel/node"
 		}
 	],
 	"routes": [
 		{
-			"src": "/api/(.*)",
-			"dest": "/api/$1"
-		},
-		{
 			"src": "/(.*)",
-			"dest": "/frontend/$1"
+			"dest": "/app.ts"
 		}
 	]
 }
